@@ -55,7 +55,6 @@ app.post("/services",async(req,res)=>{
 app.get("/servicelist",async(req,res)=>{
     try {
         const servicedata = await customerService.find()
-        console.log('siva',servicedata)
         res.json(servicedata)
     } catch (error) {
         console.log(error)
@@ -79,6 +78,15 @@ app.post("/appointments",async(req,res)=>{
     try {
         await appointmentDetails.save();
         res.send("appointment inserted successfully")
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+app.get("/appointmentlist",async(req,res)=>{
+    try {
+        const appointmentData = await customerAppointments.find()
+        res.json(appointmentData)
     } catch (error) {
         console.log(error)
     }
