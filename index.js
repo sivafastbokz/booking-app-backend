@@ -21,12 +21,14 @@ app.post('/customersignin',async(req,res)=>{
     const phoneNo = req.body.customerPhoneNo
     const age = req.body.customerAge
     const gender = req.body.customerGender
+    const password = req.body.customerPassword
 
     const customerDetails = new customers({
         customerName:name,
         customerPhoneNo:phoneNo,
         customerAge:age,
-        customerGender:gender
+        customerGender:gender,
+        customerPassword:password
     })
     try {
         await customerDetails.save();

@@ -16,6 +16,10 @@ var CustomerSchema = new mongoose.Schema({
     customerGender:{
         type:String,
         required:true
+    },
+    customerPassword:{
+        type:String,
+        required:true
     }
 })
 
