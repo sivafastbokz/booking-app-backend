@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const bcrypt = require('bcrypt');
 const app = express();
 const customers =require("./schema");
 const customerService = require("./serviveschema");
@@ -22,19 +23,21 @@ app.post('/customersignin',async(req,res)=>{
     const age = req.body.customerAge
     const gender = req.body.customerGender
     const password = req.body.customerPassword
-
+    try {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
     const customerDetails = new customers({
         customerName:name,
         customerPhoneNo:phoneNo,
         customerAge:age,
         customerGender:gender,
-        customerPassword:password
+        customerPassword:hashedPassword
     })
-    try {
         await customerDetails.save();
         res.send("data inserted successfully");
     } catch (error) {
         console.log(error)
+        res.status(500).send('Internal server error');
     }
 })
 
@@ -51,6 +54,7 @@ app.post("/services",async(req,res)=>{
         res.send("service list inserted successfully")
     } catch (error) {
         console.log(error)
+        res.status(500).send('Internal server error');
     }
 })
 
@@ -60,6 +64,7 @@ app.get("/servicelist",async(req,res)=>{
         res.json(servicedata)
     } catch (error) {
         console.log(error)
+        res.status(500).send('Internal server error');
     }
 })
 
@@ -82,6 +87,7 @@ app.post("/appointments",async(req,res)=>{
         res.send("appointment inserted successfully")
     } catch (error) {
         console.log(error)
+        res.status(500).send('Internal server error');
     }
 })
 
@@ -89,6 +95,24 @@ app.get("/appointmentlist",async(req,res)=>{
     try {
         const appointmentData = await customerAppointments.find()
         res.json(appointmentData)
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+app.post("/customerlogin",async(req,res)=>{
+    const name = req.body.customerName
+    const password = req.body.customerPassword
+    try {
+        const user = await customers.findOne({ customerName:name });
+    if (!user) {
+      return res.status(401).send('Invalid credentials');
+    }
+    const isMatch = await bcrypt.compare(password, user.customerPassword);
+    if (!isMatch) {
+      return res.status(401).send('Invalid credentials');
+    }
+    res.send('Logged in successfully');
     } catch (error) {
         console.log(error)
     }
