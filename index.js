@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require('bcrypt');
+// const jwt = require('jsonwebtoken')
 const app = express();
 const customers =require("./schema");
 const customerService = require("./serviveschema");
@@ -41,6 +42,18 @@ app.post('/customersignin',async(req,res)=>{
     }
 })
 
+app.get("/customerlist",async(req,res)=>{
+    try {
+        const customerdata = await customers.find()
+        res.json(customerdata)
+    } catch (error) {
+        console.log(error)
+        res.status(500).send('Internal server error');
+    }
+    
+
+})
+
 app.post("/services",async(req,res)=>{
     const Name =req.body.serviceName
     const charge = req.body.serviceCharge
@@ -71,16 +84,13 @@ app.get("/servicelist",async(req,res)=>{
 app.post("/appointments",async(req,res)=>{
     const bookedby = req.body.appointmentBookedBy
     const bookedfor = req.body.appointmentBookedFor
-    const status = req.body.appointmentStatus
     const date = req.body.appointmentDate
-    const id = req.body.appointmentId
-
+  
     const appointmentDetails = new customerAppointments({
         appointmentBookedBy:bookedby,
         appointmentBookedFor:bookedfor,
-        appointmentStatus:status,
         appointmentDate:date,
-        appointmentId:id
+        
     })
     try {
         await appointmentDetails.save();
@@ -112,6 +122,7 @@ app.post("/customerlogin",async(req,res)=>{
     if (!isMatch) {
       return res.status(401).send('Invalid credentials');
     }
+    
     res.send('Logged in successfully');
     } catch (error) {
         console.log(error)
