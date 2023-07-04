@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require('bcrypt');
-// const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken')
 const app = express();
 const customers =require("./schema");
 const customerService = require("./serviveschema");
@@ -11,6 +11,8 @@ const port = 5000;
 
 app.use(express.json());
 app.use(cors());
+
+const jwt_secret = "179839b8b63f7683f9cf72d0b5305ffefbd57636d5d482ef65158e119cc525cc"
 
 mongoose.connect("mongodb+srv://sivaharshanfastbokz:uoazQaGUCRMUERcC@cluster0.lcmnw6s.mongodb.net/booking_app?retryWrites=true&w=majority",
 {
@@ -25,6 +27,10 @@ app.post('/customersignin',async(req,res)=>{
     const gender = req.body.customerGender
     const password = req.body.customerPassword
     try {
+       const oldCustomer = await customers.findOne({customerName:name})
+       if(oldCustomer){
+         return res.send("user name already exists")
+       }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
     const customerDetails = new customers({
@@ -116,14 +122,16 @@ app.post("/customerlogin",async(req,res)=>{
     try {
         const user = await customers.findOne({ customerName:name });
     if (!user) {
-      return res.status(401).send('Invalid credentials');
+      return res.status(401).send('Invalid username or password');
     }
     const isMatch = await bcrypt.compare(password, user.customerPassword);
+    const token = jwt.sign({},jwt_secret)
     if (!isMatch) {
-      return res.status(401).send('Invalid credentials');
+      return res.status(401).send('Invalid username or password');
     }
-    
-    res.send('Logged in successfully');
+    if(res.status(200)){
+        return res.json({ status:'loged in sucessfully',data:token})
+    }
     } catch (error) {
         console.log(error)
     }

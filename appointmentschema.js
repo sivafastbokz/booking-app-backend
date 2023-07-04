@@ -1,3 +1,4 @@
+const { Timestamp } = require('mongodb');
 var mongoose = require('mongoose');
 
 var AppointmentSchema = new mongoose.Schema({

@@ -3,10 +3,11 @@ var mongoose = require('mongoose');
 var CustomerSchema = new mongoose.Schema({
     customerName:{
         type:String,
+        unique:true,
         required:true
     },
     customerPhoneNo:{
-        type:Number,
+        type:String,
         required:true
     },
     customerAge:{
