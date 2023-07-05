@@ -3,16 +3,19 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
-const app = express();
+const { v4: uuidv4 } = require("uuid")
+const app = express(); 
 const customers =require("./schema");
 const customerService = require("./serviveschema");
 const customerAppointments = require("./appointmentschema");
+const authenticateuser = require('./authentication')
 const port = 5000;
 
 app.use(express.json());
 app.use(cors());
 
 const jwt_secret = "179839b8b63f7683f9cf72d0b5305ffefbd57636d5d482ef65158e119cc525cc"
+
 
 mongoose.connect("mongodb+srv://sivaharshanfastbokz:uoazQaGUCRMUERcC@cluster0.lcmnw6s.mongodb.net/booking_app?retryWrites=true&w=majority",
 {
@@ -38,7 +41,7 @@ app.post('/customersignin',async(req,res)=>{
         customerPhoneNo:phoneNo,
         customerAge:age,
         customerGender:gender,
-        customerPassword:hashedPassword
+        customerPassword:hashedPassword,  
     })
         await customerDetails.save();
         res.send("data inserted successfully");
@@ -88,12 +91,10 @@ app.get("/servicelist",async(req,res)=>{
 })
 
 app.post("/appointments",async(req,res)=>{
-    const bookedby = req.body.appointmentBookedBy
     const bookedfor = req.body.appointmentBookedFor
     const date = req.body.appointmentDate
   
     const appointmentDetails = new customerAppointments({
-        appointmentBookedBy:bookedby,
         appointmentBookedFor:bookedfor,
         appointmentDate:date,
         
@@ -125,7 +126,8 @@ app.post("/customerlogin",async(req,res)=>{
       return res.status(401).send('Invalid username or password');
     }
     const isMatch = await bcrypt.compare(password, user.customerPassword);
-    const token = jwt.sign({},jwt_secret)
+    const sessionId = uuidv4();
+    const token = jwt.sign({userId:user._id,sessionId},jwt_secret)
     if (!isMatch) {
       return res.status(401).send('Invalid username or password');
     }

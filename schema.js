@@ -21,7 +21,8 @@ var CustomerSchema = new mongoose.Schema({
     customerPassword:{
         type:String,
         required:true
-    }
+    },
+
 })
 
 const users = mongoose.model("customerdatas",CustomerSchema)
