@@ -8,7 +8,7 @@ const app = express();
 const customers =require("./schema");
 const customerService = require("./serviveschema");
 const customerAppointments = require("./appointmentschema");
-const authenticateuser = require('./authentication')
+const authenticate = require('./auth')
 const port = 5000;
 
 app.use(express.json());
@@ -90,11 +90,13 @@ app.get("/servicelist",async(req,res)=>{
     }
 })
 
-app.post("/appointments",async(req,res)=>{
+app.post("/appointments",authenticate,async(req,res)=>{
+    const userId = req.params.userId
     const bookedfor = req.body.appointmentBookedFor
     const date = req.body.appointmentDate
   
     const appointmentDetails = new customerAppointments({
+        userId:userId,
         appointmentBookedFor:bookedfor,
         appointmentDate:date,
         
@@ -108,9 +110,10 @@ app.post("/appointments",async(req,res)=>{
     }
 })
 
-app.get("/appointmentlist",async(req,res)=>{
+app.get("/appointmentlist",authenticate,async(req,res)=>{
     try {
-        const appointmentData = await customerAppointments.find()
+        const userId = req.params.userId 
+        const appointmentData = await customerAppointments.find({userId:userId})
         res.json(appointmentData)
     } catch (error) {
         console.log(error)
@@ -126,8 +129,8 @@ app.post("/customerlogin",async(req,res)=>{
       return res.status(401).send('Invalid username or password');
     }
     const isMatch = await bcrypt.compare(password, user.customerPassword);
-    const sessionId = uuidv4();
-    const token = jwt.sign({userId:user._id,sessionId},jwt_secret)
+    // const sessionId = uuidv4();
+    const token = jwt.sign({userId:user._id},jwt_secret)
     if (!isMatch) {
       return res.status(401).send('Invalid username or password');
     }
@@ -142,3 +145,5 @@ app.post("/customerlogin",async(req,res)=>{
 app.listen(port,()=>{
     console.log('server is started on port 5000')
 })
+
+// module.exports ={jwt_secret}
