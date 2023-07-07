@@ -22,7 +22,6 @@ var CustomerSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-
 })
 
 const users = mongoose.model("customerdatas",CustomerSchema)

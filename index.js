@@ -16,7 +16,6 @@ app.use(cors());
 
 const jwt_secret = "179839b8b63f7683f9cf72d0b5305ffefbd57636d5d482ef65158e119cc525cc"
 
-
 mongoose.connect("mongodb+srv://sivaharshanfastbokz:uoazQaGUCRMUERcC@cluster0.lcmnw6s.mongodb.net/booking_app?retryWrites=true&w=majority",
 {
   useNewUrlParser: true,
@@ -91,7 +90,8 @@ app.get("/servicelist",async(req,res)=>{
 })
 
 app.post("/appointments",authenticate,async(req,res)=>{
-    const userId = req.params.userId
+    const userId = req.userId
+    console.log(req.userId,'post')
     const bookedfor = req.body.appointmentBookedFor
     const date = req.body.appointmentDate
   
@@ -112,7 +112,7 @@ app.post("/appointments",authenticate,async(req,res)=>{
 
 app.get("/appointmentlist",authenticate,async(req,res)=>{
     try {
-        const userId = req.params.userId 
+        const userId = req.userId 
         const appointmentData = await customerAppointments.find({userId:userId})
         res.json(appointmentData)
     } catch (error) {
@@ -146,4 +146,3 @@ app.listen(port,()=>{
     console.log('server is started on port 5000')
 })
 
-// module.exports ={jwt_secret}
