@@ -35,7 +35,7 @@ app.post('/customersignin',async(req,res)=>{
        }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-    const customerDetails = new customers({
+        const customerDetails = new customers({
         customerName:name,
         customerPhoneNo:phoneNo,
         customerAge:age,
@@ -91,7 +91,6 @@ app.get("/servicelist",async(req,res)=>{
 
 app.post("/appointments",authenticate,async(req,res)=>{
     const userId = req.userId
-    console.log(req.userId,'post')
     const bookedfor = req.body.appointmentBookedFor
     const date = req.body.appointmentDate
   
