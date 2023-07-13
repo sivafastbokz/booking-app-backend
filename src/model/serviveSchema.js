@@ -1,6 +1,6 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-var ServiceSchema = new mongoose.Schema({
+const ServiceSchema = new mongoose.Schema({
     serviceName:{
         type:String,
         required:true
@@ -11,5 +11,5 @@ var ServiceSchema = new mongoose.Schema({
     }
 })
 
-const services = mongoose.model("servicelist",ServiceSchema)
+const services = mongoose.model('servicelist',ServiceSchema)
 module.exports = services

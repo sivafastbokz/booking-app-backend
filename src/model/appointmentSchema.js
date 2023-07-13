@@ -1,6 +1,6 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-var AppointmentSchema = new mongoose.Schema({
+const AppointmentSchema = new mongoose.Schema({
     userId:{
         type:String,
         required:true
@@ -15,5 +15,5 @@ var AppointmentSchema = new mongoose.Schema({
     },
 })
 
- const appointments = mongoose.model("appointmentdatas",AppointmentSchema)
+ const appointments = mongoose.model('appointmentdatas',AppointmentSchema)
  module.exports = appointments

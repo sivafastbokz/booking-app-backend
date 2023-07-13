@@ -1,56 +1,47 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken')
-const { v4: uuidv4 } = require("uuid")
+const jwt = require('jsonwebtoken');
 const app = express(); 
-const customers =require("./schema");
-const customerService = require("./serviveschema");
-const customerAppointments = require("./appointmentschema");
-const authenticate = require('./auth')
-const port = 5000;
+const customers =require('./model/schema');
+const customerService = require('./model/serviveSchema');
+const customerAppointments = require('./model/appointmentSchema');
+const authenticate = require('../auth')
+const serverConfig = require('./serverConfig');
 
 app.use(express.json());
 app.use(cors());
 
-const jwt_secret = "179839b8b63f7683f9cf72d0b5305ffefbd57636d5d482ef65158e119cc525cc"
-
-mongoose.connect("mongodb+srv://sivaharshanfastbokz:uoazQaGUCRMUERcC@cluster0.lcmnw6s.mongodb.net/booking_app?retryWrites=true&w=majority",
-{
-  useNewUrlParser: true,
-}
-);
+mongoose.connect(serverConfig.mongooseurl,{useNewUrlParser: true,});
 
 app.post('/customersignin',async(req,res)=>{
-    const name = req.body.customerName
-    const phoneNo = req.body.customerPhoneNo
-    const age = req.body.customerAge
-    const gender = req.body.customerGender
-    const password = req.body.customerPassword
+
+    const{customerName,customerPhoneNo,customerAge,customerGender,customerPassword} = req.body
+
     try {
-       const oldCustomer = await customers.findOne({customerName:name})
+       const oldCustomer = await customers.findOne({customerName:customerName})
        if(oldCustomer){
-         return res.send("user name already exists")
+         return res.send('user name already exists')
        }
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(customerPassword, salt);
         const customerDetails = new customers({
-        customerName:name,
-        customerPhoneNo:phoneNo,
-        customerAge:age,
-        customerGender:gender,
+        customerName:customerName,
+        customerPhoneNo:customerPhoneNo,
+        customerAge:customerAge,
+        customerGender:customerGender,
         customerPassword:hashedPassword,  
     })
         await customerDetails.save();
-        res.send("data inserted successfully");
+        res.send('data inserted successfully');
     } catch (error) {
         console.log(error)
         res.status(500).send('Internal server error');
     }
 })
 
-app.get("/customerlist",async(req,res)=>{
+app.get('/customerlist',async(req,res)=>{
     try {
         const customerdata = await customers.find()
         res.json(customerdata)
@@ -62,24 +53,23 @@ app.get("/customerlist",async(req,res)=>{
 
 })
 
-app.post("/services",async(req,res)=>{
-    const Name =req.body.serviceName
-    const charge = req.body.serviceCharge
+app.post('/services',async(req,res)=>{
+   const{serviceName,serviceCharge}=req.body
     
     const serviceList = new customerService({
-        serviceName:Name,
-        serviceCharge:charge
+        serviceName:serviceName,
+        serviceCharge:serviceCharge
     })
     try {
         await serviceList.save();
-        res.send("service list inserted successfully")
+        res.send('service list inserted successfully')
     } catch (error) {
         console.log(error)
         res.status(500).send('Internal server error');
     }
 })
 
-app.get("/servicelist",async(req,res)=>{
+app.get('/servicelist',async(req,res)=>{
     try {
         const servicedata = await customerService.find()
         res.json(servicedata)
@@ -89,9 +79,9 @@ app.get("/servicelist",async(req,res)=>{
     }
 })
 
-app.post("/appointments",authenticate,async(req,res)=>{
+app.post('/appointments',authenticate,async(req,res)=>{
     const userId = req.userId
-    const bookedfor = req.body.appointmentBookedFor
+    const bookedfor =req.body.appointmentBookedFor
     const date = req.body.appointmentDate
   
     const appointmentDetails = new customerAppointments({
@@ -102,14 +92,14 @@ app.post("/appointments",authenticate,async(req,res)=>{
     })
     try {
         await appointmentDetails.save();
-        res.send("appointment inserted successfully")
+        res.send('appointment inserted successfully')
     } catch (error) {
         console.log(error)
         res.status(500).send('Internal server error');
     }
 })
 
-app.get("/appointmentlist",authenticate,async(req,res)=>{
+app.get('/appointmentlist',authenticate,async(req,res)=>{
     try {
         const userId = req.userId 
         const appointmentData = await customerAppointments.find({userId:userId})
@@ -119,17 +109,15 @@ app.get("/appointmentlist",authenticate,async(req,res)=>{
     }
 })
 
-app.post("/customerlogin",async(req,res)=>{
-    const name = req.body.customerName
-    const password = req.body.customerPassword
+app.post('/customerlogin',async(req,res)=>{
+    const{customerName,customerPassword}=req.body
     try {
-        const user = await customers.findOne({ customerName:name });
+        const user = await customers.findOne({ customerName:customerName });
     if (!user) {
       return res.status(401).send('Invalid username or password');
     }
-    const isMatch = await bcrypt.compare(password, user.customerPassword);
-    // const sessionId = uuidv4();
-    const token = jwt.sign({userId:user._id},jwt_secret)
+    const isMatch = await bcrypt.compare(customerPassword, user.customerPassword);
+    const token = jwt.sign({userId:user._id},serverConfig.jwt_sercretKey)
     if (!isMatch) {
       return res.status(401).send('Invalid username or password');
     }
@@ -141,7 +129,7 @@ app.post("/customerlogin",async(req,res)=>{
     }
 })
 
-app.listen(port,()=>{
+app.listen(serverConfig.port,()=>{
     console.log('server is started on port 5000')
 })
 

@@ -1,6 +1,6 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
  
-var CustomerSchema = new mongoose.Schema({
+const CustomerSchema = new mongoose.Schema({
     customerName:{
         type:String,
         unique:true,
@@ -24,5 +24,5 @@ var CustomerSchema = new mongoose.Schema({
     },
 })
 
-const users = mongoose.model("customerdatas",CustomerSchema)
+const users = mongoose.model('customerdatas',CustomerSchema)
 module.exports = users
