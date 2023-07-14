@@ -79,6 +79,22 @@ app.get('/servicelist',async(req,res)=>{
     }
 })
 
+app.get('/servicelist/:name',async(req,res)=>{
+    try {
+        const servicelist = await customerService.find({
+            "$or":[
+                {
+                    serviceName:{$regex:req.params.name}
+                }
+            ]
+        })
+        res.json(servicelist)
+    } catch (error) {
+        console.log(error)
+        res.status(500).send('Internal server error')
+    }
+})
+
 app.post('/appointments',authenticate,async(req,res)=>{
     const userId = req.userId
     const bookedfor =req.body.appointmentBookedFor
