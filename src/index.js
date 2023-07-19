@@ -84,7 +84,7 @@ app.get('/servicelist/:name',async(req,res)=>{
         const servicelist = await customerService.find({
             "$or":[
                 {
-                    serviceName:{$regex:req.params.name}
+                    serviceName:{$regex: new RegExp(req.params.name,'i')}
                 }
             ]
         })
