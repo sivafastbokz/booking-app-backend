@@ -79,21 +79,20 @@ app.get('/servicelist',async(req,res)=>{
     }
 })
 
-app.get('/servicelist/:name',async(req,res)=>{
+app.get('/servicelist/:name', async (req, res) => {
     try {
-        const servicelist = await customerService.find({
-            "$or":[
-                {
-                    serviceName:{$regex: new RegExp(req.params.name,'i')}
-                }
-            ]
-        })
-        res.json(servicelist)
+      const searchName = req.params.name.split('').join('.*')
+      const servicelist = await customerService.find({
+        serviceName: {$regex: new RegExp(searchName,'i')}
+      });
+  
+      res.json(servicelist);
     } catch (error) {
-        console.log(error)
-        res.status(500).send('Internal server error')
+      console.log(error);
+      res.status(500).send('Internal server error');
     }
-})
+  });
+  
 
 app.post('/appointments',authenticate,async(req,res)=>{
     const userId = req.userId
