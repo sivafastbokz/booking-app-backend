@@ -79,19 +79,24 @@ app.get('/servicelist',async(req,res)=>{
     }
 })
 
-app.get('/servicelist/:name', async (req, res) => {
+app.get('/servicelist/:key', async (req, res) => {
     try {
-      const searchName = req.params.name.split('').join('.*')
-      const servicelist = await customerService.find({
-        serviceName: {$regex: new RegExp(searchName,'i')}
-      });
-  
+      const searchName = req.params.key.split('').join('.*');
+      const numericValue = parseInt(req.params.key);
+      let query = {};
+      if (!isNaN(numericValue)) {
+        query = { serviceCharge: { $eq: numericValue } };
+      } else {
+        query = { serviceName: { $regex: new RegExp(searchName, 'i') } };
+      }
+      const servicelist = await customerService.find(query);
       res.json(servicelist);
     } catch (error) {
       console.log(error);
       res.status(500).send('Internal server error');
     }
   });
+  
   
 
 app.post('/appointments',authenticate,async(req,res)=>{
