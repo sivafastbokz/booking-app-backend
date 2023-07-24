@@ -20,9 +20,9 @@ app.post('/customersignin',async(req,res)=>{
     const{customerName,customerPhoneNo,customerAge,customerGender,customerPassword} = req.body
 
     try {
-       const oldCustomer = await customers.findOne({customerName:customerName})
+       const oldCustomer = await customers.findOne({customerPhoneNo:customerPhoneNo})
        if(oldCustomer){
-         return res.send('user name already exists')
+         return res.send('phone number already exists')
        }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(customerPassword, salt);
@@ -49,17 +49,21 @@ app.get('/customerlist',async(req,res)=>{
         console.log(error)
         res.status(500).send('Internal server error');
     }
-    
-
 })
 
 app.post('/services',async(req,res)=>{
    const{serviceName,serviceCharge}=req.body
     
+    const allService = serviceName.split('').join('.*')
+    
     const serviceList = new customerService({
-        serviceName:serviceName,
+        serviceName:allService,
         serviceCharge:serviceCharge
     })
+    const oldService = await customerService.findOne({serviceName:{$regex: new RegExp(allService,'i')}})
+    if(oldService){
+        return res.send('service already exists')
+    }
     try {
         await serviceList.save();
         res.send('service list inserted successfully')
