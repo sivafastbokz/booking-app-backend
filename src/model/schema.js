@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const CustomerSchema = new mongoose.Schema({
     customerName:{
         type:String,
-        unique:true,
         required:true
     },
     customerPhoneNo:{
